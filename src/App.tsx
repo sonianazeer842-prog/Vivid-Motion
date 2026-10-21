@@ -28,6 +28,17 @@ import { Flame } from 'lucide-react';
 // Initial showcase video to demonstrate playback immediately
 const INITIAL_SHOWCASE: GeneratedVideo[] = [
   {
+    id: 'showcase-steel-girl',
+    mode: 'text-to-video',
+    prompt: 'ایک لڑکی ہے جو اسٹیل کی بنی ہوئی ہے، اس نے لاوا کے بنے ہوئے کپڑے پہنے ہوئے ہیں اور وہ ایک کیک کھا رہی ہے جو کہ کپڑوں سے بنا ہوا ہے، فیبرک کا بنا ہوا ہے۔ (Chrome steel girl in flowing molten lava gown eating fabric cake)',
+    sourceImageUrl: '/src/assets/images/steel_girl_lava_cake_1792579378644.jpg',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    aspectRatio: '9:16',
+    duration: '15s',
+    resolution: '1080p',
+    createdAt: Date.now() - 1800000,
+  },
+  {
     id: 'showcase-1',
     mode: 'image-to-video',
     prompt: 'Gentle raindrops falling, neon lights reflecting in puddles, cinematic slow push in, atmospheric steam rising.',
@@ -83,7 +94,32 @@ export default function App() {
     aspectRatio?: AspectRatio;
     duration?: VideoDuration;
     resolution?: VideoResolution;
+    preGeneratedVideoUrl?: string;
   }) => {
+    // If pre-generated via fast client/canvas synthesis, display immediately!
+    if (payload.preGeneratedVideoUrl) {
+      const sourceImg =
+        payload.references && payload.references.length > 0
+          ? payload.references[0].previewUrl
+          : payload.image?.data || '/src/assets/images/steel_girl_lava_cake_1792579378644.jpg';
+
+      const fastVideo: GeneratedVideo = {
+        id: `gen-${Date.now()}`,
+        mode: payload.mode,
+        prompt: payload.prompt,
+        videoUrl: payload.preGeneratedVideoUrl,
+        sourceImageUrl: sourceImg,
+        mediaReferences: payload.references,
+        aspectRatio: payload.aspectRatio || '9:16',
+        duration: payload.duration || '15s',
+        resolution: payload.resolution || '1080p',
+        createdAt: Date.now(),
+      };
+      setHistory((prev) => [fastVideo, ...prev]);
+      setActiveVideo(fastVideo);
+      return;
+    }
+
     setIsGenerating(true);
     setErrorNotice(null);
 
