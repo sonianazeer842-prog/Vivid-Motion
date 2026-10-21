@@ -13,7 +13,7 @@ import {
   AlertCircle,
   Sliders,
 } from 'lucide-react';
-import { GeneratedVideo, GenerationMode, AspectRatio, VideoDuration, VideoResolution } from './types';
+import { GeneratedVideo, GenerationMode, AspectRatio, VideoDuration, VideoResolution, MediaReference } from './types';
 import { SAMPLE_IMAGES, SAMPLE_VIDEOS } from './data/samples';
 import { Header } from './components/Header';
 import { ImageToVideo } from './components/ImageToVideo';
@@ -78,6 +78,7 @@ export default function App() {
     prompt: string;
     image?: { data: string; mimeType: string };
     video?: { data: string; mimeType: string };
+    references?: MediaReference[];
     previousInteractionId?: string;
     aspectRatio?: AspectRatio;
     duration?: VideoDuration;
@@ -103,6 +104,7 @@ export default function App() {
           videoUrl: data.videoUrl,
           sourceImageUrl: payload.image?.data ? (payload.image.data.startsWith('http') || payload.image.data.startsWith('data:') ? payload.image.data : `data:${payload.image.mimeType};base64,${payload.image.data}`) : undefined,
           sourceVideoUrl: payload.video?.data ? (payload.video.data.startsWith('http') || payload.video.data.startsWith('data:') ? payload.video.data : `data:${payload.video.mimeType};base64,${payload.video.data}`) : undefined,
+          mediaReferences: payload.references,
           aspectRatio: payload.aspectRatio || '16:9',
           duration: payload.duration || '5s',
           resolution: payload.resolution || '720p',
@@ -125,6 +127,7 @@ export default function App() {
           videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
           sourceImageUrl: payload.image?.data,
           sourceVideoUrl: payload.video?.data,
+          mediaReferences: payload.references,
           aspectRatio: payload.aspectRatio || '16:9',
           duration: payload.duration || '5s',
           resolution: payload.resolution || '720p',

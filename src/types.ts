@@ -6,8 +6,29 @@ export type GenerationMode =
   | 'extend-video';
 
 export type AspectRatio = '16:9' | '9:16';
-export type VideoDuration = '5s' | '10s' | '15s' | '20s';
+export type VideoDuration =
+  | '5s'
+  | '10s'
+  | '15s'
+  | '20s'
+  | '30s'
+  | '1m'
+  | '2m'
+  | '3m'
+  | '4m'
+  | '5m';
+
 export type VideoResolution = '360p' | '720p' | '1080p' | '4k';
+
+export interface MediaReference {
+  id: string;
+  type: 'image' | 'video';
+  name: string;
+  previewUrl: string;
+  data: string;
+  mimeType: string;
+  role: 'character' | 'scene' | 'motion' | 'style';
+}
 
 export interface CharacterProfile {
   id: string;
@@ -59,6 +80,7 @@ export interface GeneratedVideo {
   createdAt: number;
   interactionId?: string;
   script?: ShortsScript;
+  mediaReferences?: MediaReference[];
 }
 
 export interface SampleMedia {

@@ -29,11 +29,14 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
   onExtendVideo,
   onUseAsSource,
 }) => {
+  const firstRef = video.mediaReferences && video.mediaReferences.length > 0 ? video.mediaReferences[0] : null;
+  const hasComparisonMedia = Boolean(video.sourceImageUrl || video.sourceVideoUrl || firstRef);
+
   const [isPlaying, setIsPlaying] = useState(true);
   const [playbackRate, setPlaybackRate] = useState<number>(1);
   const [isLooping, setIsLooping] = useState<boolean>(true);
   const [viewMode, setViewMode] = useState<'video' | 'comparison' | 'source'>(
-    video.sourceImageUrl || video.sourceVideoUrl ? 'comparison' : 'video'
+    hasComparisonMedia ? 'comparison' : 'video'
   );
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -85,8 +88,8 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
           </div>
 
           <div className="flex items-center space-x-2">
-            {/* View Mode Toggle if source image/video is available */}
-            {(video.sourceImageUrl || video.sourceVideoUrl) && (
+            {/* View Mode Toggle if source image/video or reference is available */}
+            {hasComparisonMedia && (
               <div className="flex items-center p-0.5 rounded-lg bg-zinc-800/80 border border-zinc-700/60 text-xs">
                 <button
                   type="button"
@@ -134,12 +137,16 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
 
         {/* Video Screen Area */}
         <div className="flex-1 overflow-auto bg-black flex items-center justify-center p-2 sm:p-4 min-h-[300px]">
-          {viewMode === 'comparison' && (video.sourceImageUrl || video.sourceVideoUrl) ? (
+          {viewMode === 'comparison' && hasComparisonMedia ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full h-full max-h-[550px]">
               {/* Before */}
               <div className="relative rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-950 flex flex-col">
                 <div className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-md bg-black/70 backdrop-blur-md text-[11px] font-bold text-zinc-300 border border-zinc-700/60">
-                  {video.sourceImageUrl ? 'Original Picture (Keyframe)' : 'Original Source Video'}
+                  {video.sourceImageUrl
+                    ? 'Original Picture (Keyframe)'
+                    : video.sourceVideoUrl
+                    ? 'Original Source Video'
+                    : `Reference Anchor (${firstRef?.name || 'Character'})`}
                 </div>
                 {video.sourceImageUrl ? (
                   <img
@@ -147,11 +154,24 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
                     alt="Original starting image"
                     className="w-full h-full object-contain"
                   />
-                ) : (
+                ) : video.sourceVideoUrl ? (
                   <video
                     src={video.sourceVideoUrl}
                     controls
                     loop
+                    className="w-full h-full object-contain"
+                  />
+                ) : firstRef?.type === 'video' ? (
+                  <video
+                    src={firstRef.previewUrl}
+                    controls
+                    loop
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <img
+                    src={firstRef?.previewUrl}
+                    alt={firstRef?.name || 'Reference Anchor'}
                     className="w-full h-full object-contain"
                   />
                 )}
@@ -246,14 +266,51 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
             </div>
           </div>
 
-          {/* Prompt description */}
-          <div className="p-3 rounded-xl bg-zinc-900 border border-zinc-800 text-xs">
-            <span className="font-semibold text-zinc-400 block mb-1">
-              Generation Prompt:
-            </span>
+          {/* Prompt description and Media Reference Anchors */}
+          <div className="p-3.5 rounded-xl bg-zinc-900 border border-zinc-800 text-xs space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="font-semibold text-zinc-400 block">
+                Generation Prompt:
+              </span>
+              {video.mediaReferences && video.mediaReferences.length > 0 && (
+                <span className="text-[10px] text-emerald-400 font-semibold px-2 py-0.5 rounded-full bg-emerald-950/60 border border-emerald-500/40">
+                  {video.mediaReferences.length} Reference Anchor(s) Locked
+                </span>
+              )}
+            </div>
+
             <p className="text-zinc-200 leading-relaxed font-mono text-[11px]">
               "{video.prompt}"
             </p>
+
+            {/* Media Reference Thumbnails */}
+            {video.mediaReferences && video.mediaReferences.length > 0 && (
+              <div className="pt-2 border-t border-zinc-800/80">
+                <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-500 block mb-1.5">
+                  Locked Character / Scene References:
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  {video.mediaReferences.map((ref, idx) => (
+                    <div
+                      key={ref.id || idx}
+                      className="flex items-center space-x-2 px-2 py-1 rounded-lg bg-zinc-950 border border-zinc-800"
+                    >
+                      <img
+                        src={ref.previewUrl}
+                        alt={ref.name}
+                        className="w-6 h-6 rounded object-cover border border-zinc-700"
+                      />
+                      <span className="text-[11px] text-zinc-300 font-medium truncate max-w-[140px]">
+                        {ref.name}
+                      </span>
+                      <span className="text-[9px] uppercase px-1 rounded bg-violet-600/30 text-violet-300 font-bold">
+                        {ref.type}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

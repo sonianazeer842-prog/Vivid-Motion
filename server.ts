@@ -79,6 +79,7 @@ app.post('/api/generate-video', async (req, res) => {
       prompt,
       image, // { data: string (base64), mimeType: string }
       video, // { data: string (base64), mimeType: string }
+      references, // Array<{ type: 'image' | 'video', data: string, mimeType: string, role: string }>
       previousInteractionId,
       aspectRatio = '16:9',
       duration = '5s',
@@ -192,18 +193,48 @@ app.post('/api/generate-video', async (req, res) => {
         { timeout: 300000 }
       );
     } else {
-      // Default: Text-to-Video
+      // Text-to-Video with optional Multimodal Picture/Video References
+      const inputParts: any[] = [];
+
+      // If user supplied picture or video references for character/style lock
+      if (references && Array.isArray(references) && references.length > 0) {
+        references.forEach((ref: any, idx: number) => {
+          if (!ref.data) return;
+          const cleanData = ref.data.includes(',') ? ref.data.split(',')[1] : ref.data;
+          if (ref.type === 'video') {
+            inputParts.push({
+              type: 'video',
+              mime_type: ref.mimeType || 'video/mp4',
+              data: cleanData,
+            });
+          } else {
+            inputParts.push({
+              type: 'image',
+              mime_type: ref.mimeType || 'image/png',
+              data: cleanData,
+            });
+          }
+        });
+      }
+
+      inputParts.push({
+        type: 'text',
+        text: prompt,
+      });
+
+      const apiDuration: '5s' | '10s' = duration === '5s' ? '5s' : '10s';
+
       interaction = await ai.interactions.create(
         {
           model: 'gemini-omni-1.1-flash',
-          input: prompt,
+          input: inputParts.length === 1 ? prompt : inputParts,
           background: false,
           store: true,
           stream: false,
           response_format: {
             type: 'video',
             aspect_ratio: aspectRatio as '16:9' | '9:16',
-            duration: duration as '5s' | '10s',
+            duration: apiDuration,
             resolution: resolution as '360p' | '720p' | '1080p' | '4k',
           },
         },
