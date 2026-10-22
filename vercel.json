@@ -1,8 +1,11 @@
 {
-  "regions": ["iad1"],
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "/api/index.ts" },
+    { "source": "/(.*)", "destination": "/$1" }
+  ],
   "functions": {
-    "app/api/image-to-video/route.ts": { "maxDuration": 60 },
-    "app/api/video-to-video/route.ts": { "maxDuration": 60 },
-    "app/api/text-to-video/route.ts": { "maxDuration": 60 }
+    "api/index.ts": {
+      "maxDuration": 60
+    }
   }
 }
