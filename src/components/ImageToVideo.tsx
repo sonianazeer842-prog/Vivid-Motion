@@ -113,13 +113,13 @@ export const ImageToVideo: React.FC<ImageToVideoProps> = ({
         </div>
         <div className="space-y-1">
           <h4 className="font-semibold text-zinc-100 flex items-center space-x-2">
-            <span>Yes! Gemini Omni Flash Generates Full AI Video from Photos</span>
+            <span>Yes! Veo 3.0 & Gemini 2.0 Generates Full AI Video from Photos</span>
             <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30">
               Image-to-Video Mode
             </span>
           </h4>
           <p className="text-xs text-zinc-300 leading-relaxed">
-            Provide any still photograph or artwork with a motion prompt. Gemini calculates depth maps, optical flow, and volumetric lighting to synthesize smooth 5s or 10s video continuations.
+            Provide any still photograph or artwork with a motion prompt. The AI calculates depth maps, optical flow, and volumetric lighting to synthesize smooth 5s or 10s video continuations.
           </p>
         </div>
       </div>

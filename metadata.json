@@ -1,6 +1,6 @@
 {
   "name": "VividMotion AI - Video Studio",
-  "description": "Generate and edit cinematic AI videos from images, videos, and prompts with Google Gemini Omni Flash.",
+  "description": "Generate and edit cinematic AI videos from images, videos, and prompts with Google Veo and Gemini 2.0.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

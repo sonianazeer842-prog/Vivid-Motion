@@ -32,7 +32,7 @@ export const Header: React.FC<HeaderProps> = ({
               </span>
             </div>
             <p className="text-[11px] text-zinc-400 hidden sm:block">
-              Powered by Google Gemini Omni Flash Video
+              Powered by Google Veo & Gemini 2.0 Engine
             </p>
           </div>
         </div>

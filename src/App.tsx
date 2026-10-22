@@ -124,20 +124,28 @@ export default function App() {
     setErrorNotice(null);
 
     try {
-      const response = await fetch('/api/generate-video', {
+      const response = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
-      const data = await response.json();
+      const text = await response.text();
+      let data: any;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error(`Server returned invalid response: ${text.slice(0, 500)}`);
+      }
 
-      if (data.success && data.videoUrl) {
+      const generatedUrl = data.url || data.videoUrl;
+
+      if (data.success && generatedUrl) {
         const newVideo: GeneratedVideo = {
           id: `gen-${Date.now()}`,
           mode: payload.mode,
           prompt: payload.prompt,
-          videoUrl: data.videoUrl,
+          videoUrl: generatedUrl,
           sourceImageUrl: payload.image?.data ? (payload.image.data.startsWith('http') || payload.image.data.startsWith('data:') ? payload.image.data : `data:${payload.image.mimeType};base64,${payload.image.data}`) : undefined,
           sourceVideoUrl: payload.video?.data ? (payload.video.data.startsWith('http') || payload.video.data.startsWith('data:') ? payload.video.data : `data:${payload.video.mimeType};base64,${payload.video.data}`) : undefined,
           mediaReferences: payload.references,
@@ -155,7 +163,7 @@ export default function App() {
         const msg = data.error || data.message || 'Generation returned an unexpected response.';
         setErrorNotice(msg);
 
-        // If it was a quota or authorization notice, also generate a simulated video result so user can still experience the playback interface
+        // Fallback video result so user can still experience the playback interface
         const fallbackVideo: GeneratedVideo = {
           id: `sim-${Date.now()}`,
           mode: payload.mode,
@@ -202,7 +210,7 @@ export default function App() {
           <div className="relative z-10 max-w-3xl space-y-4">
             <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-violet-950/80 border border-violet-700/50 text-xs font-semibold text-violet-300">
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              <span>Google Gemini Omni Flash (1.1) Video Synthesis</span>
+              <span>Google Veo (veo-3.0-generate-preview) & Gemini 2.0 Video Engine</span>
             </div>
 
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-[1.15]">
@@ -231,7 +239,7 @@ export default function App() {
                   Model Engine
                 </span>
                 <span className="text-sm font-bold text-violet-300">
-                  Gemini Omni Flash
+                  Veo 3.0 & Gemini 2.0
                 </span>
               </div>
               <div className="p-3 rounded-xl bg-zinc-900/80 border border-zinc-800">
