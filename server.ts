@@ -346,7 +346,10 @@ async function handleGenerateRequest(req: express.Request, res: express.Response
   }
 }
 
-// Register both /api/generate and /api/generate-video
+// Register all API routes including Vercel-compatible endpoints
+app.post('/api/image-to-video', handleGenerateRequest);
+app.post('/api/video-to-video', handleGenerateRequest);
+app.post('/api/text-to-video', handleGenerateRequest);
 app.post('/api/generate', handleGenerateRequest);
 app.post('/api/generate-video', handleGenerateRequest);
 

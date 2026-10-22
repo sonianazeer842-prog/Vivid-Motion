@@ -124,21 +124,28 @@ export default function App() {
     setErrorNotice(null);
 
     try {
-      const response = await fetch('/api/generate', {
+      const endpoint =
+        payload.mode === 'video-to-video'
+          ? '/api/video-to-video'
+          : payload.mode === 'text-to-video'
+          ? '/api/text-to-video'
+          : '/api/image-to-video';
+
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
-      const text = await response.text();
+      const text = await res.text();
       let data: any;
       try {
         data = JSON.parse(text);
       } catch {
-        throw new Error(`Server returned invalid response: ${text.slice(0, 500)}`);
+        throw new Error('Server returned non-JSON: ' + text.slice(0, 200));
       }
 
-      const generatedUrl = data.url || data.videoUrl;
+      const generatedUrl = data.videoUrl || data.url;
 
       if (data.success && generatedUrl) {
         const newVideo: GeneratedVideo = {
